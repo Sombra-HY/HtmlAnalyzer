@@ -1,66 +1,76 @@
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.jar.Attributes.Name;
+
+
 public class HTMLtext {
-    public static void main(String[] args) {
-        StringBuffer html = new StringBuffer();
-        html.append("<html>\n" +
-                "  <head>\n" +
-                "    <title>\n" +
-                "      This is the title.\n" +
-                "    </title>\n" +
-                "  </head>\n" +
-                "  <body>\n" +
-                "    This is the body.\n" +
-                "  </body>\n" +
-                "</html>\n");
 
-        ArrayList <String> lista = splitHtml(html.toString());
-        HtmlDeph(lista);
-
-    }
     public static ArrayList<String> splitHtml(String lista){
 
-        ArrayList <String> ele = new ArrayList<String>(); //array final [<body>,conteudo,</body>]
-        String []elementos  = lista
+        ArrayList <String> listformat = new ArrayList<>();
+        String []elementos  = lista //Removendo espacoes e divindo em uma lista
                 .replace("\n","")
                 .replace("<","*<")
                 .replace(">",">*")
                 .replace("**","*")
                 .split("[*]");
 
-        for (int i = 0; i < elementos.length; i++) {
-            if (elementos[i].trim() == ""){
-                continue;
-            }
-            ele.add(elementos[i].trim());
+        for (String elemento : elementos) {
+            if (elemento.trim().equals("")) continue;
+            listformat.add(elemento.trim());
         }
-        System.out.println(ele);
-        return ele;
+        return listformat; // return exe: ["<body>", <p>, conteudo, </p>, "</body>"]
     }
-    public static String HtmlDeph(ArrayList<String> htmllist){
+    public static boolean checkHtml(ArrayList<String> lista){
+        ArrayList <String> opentags = new ArrayList<>();
+        boolean optag =false;
+
+        for (String el : lista) {
+            if (el.charAt(0) == '<' && el.charAt(el.length() - 1) == '>') {
+                if (!el.contains("</")) { //abertura
+                    opentags.add(el);
+                    optag = true;
+                    continue;
+                }
+                if (!optag) { // caso nao tenha sido abrido uma tag e ter comececado com uma tag de fechamento
+                    System.out.println("(ERRO) malformed HTML");
+                    return false;
+                }
+                String formatendtag = "</" + opentags.get(opentags.size() - 1).substring(1);
+                if (!el.equals(formatendtag)) { // verifica se a de tag fechamento atual é a que deve ser fechada ex: <div> <p> </div> </p> --> erro
+                    System.out.println("(ERRO) malformed HTML");
+                    return false;
+                }
+                opentags.remove(opentags.size() - 1);
+            }
+        }
+        if (opentags.size()==0){ //verifica se todas tags foram fechadas
+            return true;
+        }
+        System.out.println("(ERRO) malformed HTML");
+        return false;
+    }
+    public static String htmlDeph(ArrayList<String> htmllist){
         String maxdeph = "";
         int nivel_atual = 0;
         int nivel_max = -1;
 
-        for (int i = 0; i < htmllist.size(); i++) {
-
-            if (htmllist.get(i).contains("<")) {
-                if (htmllist.get(i).contains("</")){ // tag de fechamento
+        for (String el : htmllist) {
+            if (el.charAt(0) == '<' && el.charAt(el.length() - 1) == '>') { // verifico se é uma Tag
+                if (el.contains("</")) { //Tag de abertura
                     nivel_atual--;
-                    System.out.println("FECHAMENTO - NIVEL :"+ nivel_atual +" "+ htmllist.get(i));
                     continue;
                 }
-                nivel_atual++; //tag de abertura
-                System.out.println("ABERTURA - NIVEL :"+ nivel_atual +" "+ htmllist.get(i));
+                nivel_atual++; //Tag de fechamento
                 continue;
             }
-            if (nivel_atual > nivel_max){ // conteudo mais profundo
-                maxdeph = htmllist.get(i); // atualizacao de variavel com coneteudo e do parametro de profundidade
+            if (nivel_atual > nivel_max) { // conteudo mais profundo
+                maxdeph = el;
                 nivel_max = nivel_atual;
             }
-            System.out.println("CONTEUDO - NIVEL :"+ nivel_atual +" "+ htmllist.get(i));
-
         }
-        System.out.println("max = "+maxdeph);
+        System.out.println(maxdeph);
         return maxdeph;
     }
+
 }
