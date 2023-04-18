@@ -1,4 +1,3 @@
-import javax.net.ssl.HttpsURLConnection;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.io.BufferedReader;
@@ -10,7 +9,7 @@ public class HtmlAnalyzer{
 
     public static void main(String[] args) {
         String [] a = {args[0]};
-        System.out.println(a[0]);
+
 
         StringBuffer html = new StringBuffer();
 
@@ -21,7 +20,7 @@ public class HtmlAnalyzer{
             conec.setRequestMethod("GET");
 
             if (conec.getResponseCode()>=400){
-                System.out.println("(Error) URL connection "); // qualquer Status code erro acima de 400 (Client e Server erro)
+                System.out.println("URL connection error"); // qualquer Status code erro acima de 400 (Client e Server erro)
                 return;
             }
 
@@ -36,7 +35,7 @@ public class HtmlAnalyzer{
             in.close();
         }
         catch (Exception e){
-            System.out.println("(Error) URL connection ");
+            System.out.println("URL connection error");
         }
 
         HTMLtext test = new HTMLtext();

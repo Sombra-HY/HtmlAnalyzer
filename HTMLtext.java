@@ -1,6 +1,4 @@
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.jar.Attributes.Name;
 
 
 public class HTMLtext {
@@ -21,24 +19,26 @@ public class HTMLtext {
         }
         return listformat; // return exe: ["<body>", <p>, conteudo, </p>, "</body>"]
     }
+
     public static boolean checkHtml(ArrayList<String> lista){
+
         ArrayList <String> opentags = new ArrayList<>();
         boolean optag =false;
 
         for (String el : lista) {
-            if (el.charAt(0) == '<' && el.charAt(el.length() - 1) == '>') {
+            if (isTag(el)) {
                 if (!el.contains("</")) { //abertura
                     opentags.add(el);
                     optag = true;
                     continue;
                 }
-                if (!optag) { // caso nao tenha sido abrido uma tag e ter comececado com uma tag de fechamento
-                    System.out.println("(ERRO) malformed HTML");
+                if (!optag) { // caso nao tenha sido abrido uma tag e tenha começado com uma tag de fechamento
+                    System.out.println("malformed HTML");
                     return false;
                 }
                 String formatendtag = "</" + opentags.get(opentags.size() - 1).substring(1);
                 if (!el.equals(formatendtag)) { // verifica se a de tag fechamento atual é a que deve ser fechada ex: <div> <p> </div> </p> --> erro
-                    System.out.println("(ERRO) malformed HTML");
+                    System.out.println("malformed HTML");
                     return false;
                 }
                 opentags.remove(opentags.size() - 1);
@@ -47,9 +47,14 @@ public class HTMLtext {
         if (opentags.size()==0){ //verifica se todas tags foram fechadas
             return true;
         }
-        System.out.println("(ERRO) malformed HTML");
+        System.out.println("malformed HTML");
         return false;
     }
+
+    private static boolean isTag(String el) {
+        return el.charAt(0) == '<' && el.charAt(el.length() - 1) == '>';
+    }
+
     public static String htmlDeph(ArrayList<String> htmllist){
         String maxdeph = "";
         int nivel_atual = 0;
